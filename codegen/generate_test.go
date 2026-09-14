@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	acton "github.com/ton-blockchain/acton/packages/abi-go"
+	tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 )
 
 func fixture(t *testing.T) []byte {
@@ -26,7 +26,7 @@ func catalogFixture(t *testing.T) []byte {
 	abi := fixture(t)
 	entries := []ContractInput{}
 	for _, id := range []string{"vector/a", "vector-a"} {
-		entries = append(entries, ContractInput{ID: id, DisplayName: "Vector", Hashes: []string{strings.Repeat("ab", 32)}, KnownAddresses: []string{}, Links: []acton.Link{}, CompilerABI: abi})
+		entries = append(entries, ContractInput{ID: id, DisplayName: "Vector", Hashes: []string{strings.Repeat("ab", 32)}, KnownAddresses: []string{}, Links: []tolkabi.Link{}, CompilerABI: abi})
 	}
 	data, err := json.Marshal(CatalogInput{SchemaVersion: 1, Contracts: entries})
 	if err != nil {
@@ -232,7 +232,7 @@ func TestDefaultDiagnostics(t *testing.T) {
 		target int
 		want   string
 	}{
-		{`{"kind":"slice","hex":"AC_"}`, 7, `acton.Bits{Bits:5,Hex:"a8"}`},
+		{`{"kind":"slice","hex":"AC_"}`, 7, `tolkabi.Bits{Bits:5,Hex:"a8"}`},
 		{`{"kind":"slice","hex":"B_"}`, 7, ""},
 		{`{"kind":"int"}`, 0, ""},
 		{`{"kind":"castTo","cast_to_ty_idx":999,"inner":{"kind":"int","v":"2"}}`, 0, ""},

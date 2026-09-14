@@ -1,8 +1,19 @@
-# Acton Native Go ABI Bindings
+# Tolk-to-Go generator
 
-`github.com/ton-blockchain/acton/packages/abi-go` is a standalone **Go 1.26.3**
-module. Its root package, `acton`, is a pure Go facade and shared codec library
-using **tonutils-go v1.15.5**. The `codegen` subpackage is a reusable build-time
+This repo serves as:
+- Go wrappers generator from Tolk contracts (`acton wrapper --go` in the
+  [Acton](https://github.com/ton-blockchain/acton) toolchain)
+- runtime decoding of storage cells, messages and TVM stacks against a Tolk ABI,
+  for indexers and explorers that know only a code hash
+- the Go counterpart of
+  [tolk-abi-to-typescript](https://github.com/ton-blockchain/tolk-abi-to-typescript),
+  which remains the **reference implementation of the Tolk ABI client**. Where this
+  module and the TypeScript one disagree about ABI semantics, the TypeScript one
+  is right.
+
+`github.com/ton-blockchain/tolk-abi-to-go` is a standalone **Go 1.26.3** module.
+Its root package, `tolkabi`, is a pure Go facade and shared codec library using
+**tonutils-go v1.15.5**. The `codegen` subpackage is a reusable build-time
 compiler ABI validator and Go generator.
 Generated code calls native codec constructors once at initialization. It does
 not interpret a type table or parse compiler ABI JSON while handling requests.
@@ -13,7 +24,13 @@ test fixtures. Applications own their catalog inputs and generated bindings.
 
 ## Generation
 
-Run from `packages/abi-go` in the Acton checkout:
+Without a checkout, pinning an exact release:
+
+```sh
+go run github.com/ton-blockchain/tolk-abi-to-go/cmd/tolk-abi-to-go@v0.1.0 --catalog FILE --output-dir DIR --package catalog
+```
+
+From a checkout of this repository:
 
 ```sh
 go run ./cmd/tolk-abi-to-go --catalog FILE --output-dir DIR --package catalog
@@ -23,7 +40,7 @@ go run ./cmd/tolk-abi-to-go --catalog FILE --output-dir DIR --package catalog --
 ```
 
 The CLI's canonical package path is
-`github.com/ton-blockchain/acton/packages/abi-go/cmd/tolk-abi-to-go`.
+`github.com/ton-blockchain/tolk-abi-to-go/cmd/tolk-abi-to-go`.
 
 Exactly one of `--catalog` and `--abi` is required. `--output-dir` is required;
 `--package` defaults to `catalog`. A single ABI uses `contract_name` as its ID and
@@ -69,7 +86,7 @@ carrying this generator's exact header. Unrelated files are preserved; overwriti
 a non-generated file is an error.
 
 Programmatic use imports
-`github.com/ton-blockchain/acton/packages/abi-go/codegen`:
+`github.com/ton-blockchain/tolk-abi-to-go/codegen`:
 
 ```go
 out, err := codegen.Generate(data, codegen.Options{Package: "catalog"})
@@ -81,10 +98,10 @@ return out.Write(outputDirectory, false)
 The output contains one file per contract plus `registry_gen.go`, exporting:
 
 ```go
-var Contracts []*acton.Contract
+var Contracts []*tolkabi.Contract
 const Revision string // SHA-256 of the exact input bytes
-func ByID(string) *acton.Contract
-func ByCodeHash(string) []*acton.Contract
+func ByID(string) *tolkabi.Contract
+func ByCodeHash(string) []*tolkabi.Contract
 ```
 
 Contracts are sorted by ID; hashes are normalized, deduplicated and sorted.
@@ -93,10 +110,10 @@ contract: neither generation nor lookup picks a winner for an ambiguous hash.
 
 ## Facade
 
-The public package retains the name `acton`:
+The public package retains the name `tolkabi`:
 
 ```go
-import acton "github.com/ton-blockchain/acton/packages/abi-go"
+import tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 ```
 
 - `Contract`: ID, display name, hashes, known addresses, links, embedded ABI,
@@ -145,7 +162,7 @@ Message direction keys are exactly `incoming_messages`, `incoming_external`,
   addresses are null or strings, with **no extra Maybe bit** in cells.
   External addresses use `{"bits": 5, "hex": "a8"}`. `addressAny` additionally
   accepts null. Anycast and variable internal addresses are explicitly rejected.
-- Bits use `acton.Bits`, JSON `{"bits": 5, "hex": "a8"}`: MSB-first bytes,
+- Bits use `tolkabi.Bits`, JSON `{"bits": 5, "hex": "a8"}`: MSB-first bytes,
   exact bit count, zero padding in the low bits of the final byte. The small
   `bits` count accepts JSON numeric values as well as exact Go integers.
 - Raw cells, getter slices/builders and `RemainingBitsAndRefs` are base64 BOCs.
@@ -156,12 +173,12 @@ Message direction keys are exactly `incoming_messages`, `incoming_external`,
   struct layouts never interpret an exotic cell as ordinary payload data.
 - `Cell<T>` exposes the **decoded T payload directly**, not a `{ref: ...}`
   wrapper, and requires complete consumption of the referenced cell.
-- Dictionaries are sorted binary-key-order `[]acton.MapEntry`, JSON
+- Dictionaries are sorted binary-key-order `[]tolkabi.MapEntry`, JSON
   `[{"key": ..., "value": ...}]`. Keys retain their types. Duplicate encoded
   keys are rejected. Values use their declared inline cell layout.
   Raw `slice` values and hook-free aliases of `slice` are supported specifically
   at a dictionary leaf boundary, where they consume all remaining bits and refs.
-- Unions always use `acton.UnionValue`, JSON `{"$": "RenderedType", "value": ...}`,
+- Unions always use `tolkabi.UnionValue`, JSON `{"$": "RenderedType", "value": ...}`,
   including struct variants. A null variant is JSON null. A void variant is
   `{"$":"void","value":null}`. Labels are rendered compiler type names.
 - Strings are UTF-8 snake strings. Cell serialization is a ref to the snake;

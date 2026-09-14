@@ -1,7 +1,7 @@
-// Package acton is the JSON-safe facade for ahead-of-time generated Tolk bindings.
-// Import it as github.com/ton-blockchain/acton/packages/abi-go (package acton).
+// Package tolkabi is the JSON-safe facade for ahead-of-time generated Tolk bindings.
+// Import it as github.com/ton-blockchain/tolk-abi-to-go (package tolkabi).
 // It never loads or interprets compiler ABI JSON. See the codegen subpackage for generation.
-package acton
+package tolkabi
 
 import (
 	"encoding/base64"

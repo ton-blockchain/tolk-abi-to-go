@@ -3,7 +3,7 @@ package catalog
 import (
 	"encoding/base64"
 	"encoding/json"
-	acton "github.com/ton-blockchain/acton/packages/abi-go"
+	tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 	"github.com/xssnick/tonutils-go/tvm/cell"
 	"strings"
 	"testing"
@@ -23,7 +23,7 @@ func same(t *testing.T, a, b any) {
 		t.Fatalf("got %s want %s", x, y)
 	}
 }
-func method(t *testing.T, c *acton.Contract, name string) *acton.GetMethod {
+func method(t *testing.T, c *tolkabi.Contract, name string) *tolkabi.GetMethod {
 	t.Helper()
 	for i := range c.GetMethods {
 		if c.GetMethods[i].Name == name {
@@ -54,12 +54,12 @@ func TestGeneratedNativeBindings(t *testing.T) {
 		t.Fatal("caller mutated shared hash index")
 	}
 	point := map[string]any{"x": "-2", "y": "123"}
-	storage := map[string]any{"id": "9", "owner": nil, "balance": "456", "signed": "-129", "tagged": acton.UnionValue{Type: "MsgA", Value: map[string]any{"counter": "11"}}, "ref": point, "table": []acton.MapEntry{{Key: "9", Value: point}}}
+	storage := map[string]any{"id": "9", "owner": nil, "balance": "456", "signed": "-129", "tagged": tolkabi.UnionValue{Type: "MsgA", Value: map[string]any{"counter": "11"}}, "ref": point, "table": []tolkabi.MapEntry{{Key: "9", Value: point}}}
 	root, err := c.Storage.Encode(storage)
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := acton.DecodeStorage(c, base64.StdEncoding.EncodeToString(root.ToBOC()))
+	got, err := tolkabi.DecodeStorage(c, base64.StdEncoding.EncodeToString(root.ToBOC()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,18 +69,18 @@ func TestGeneratedNativeBindings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err = acton.DecodeStorage(c, base64.StdEncoding.EncodeToString(root.ToBOC()))
+	got, err = tolkabi.DecodeStorage(c, base64.StdEncoding.EncodeToString(root.ToBOC()))
 	if err != nil {
 		t.Fatal(err)
 	}
 	same(t, got, deploy)
-	msg := acton.UnionValue{Type: "MsgB", Value: map[string]any{"ok": true}}
+	msg := tolkabi.UnionValue{Type: "MsgB", Value: map[string]any{"ok": true}}
 	binding := c.Messages["incoming_messages"][0]
 	root, err = binding.Encode(msg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	decoded, err := acton.DecodeMessage(c, "incoming_messages", base64.StdEncoding.EncodeToString(root.ToBOC()))
+	decoded, err := tolkabi.DecodeMessage(c, "incoming_messages", base64.StdEncoding.EncodeToString(root.ToBOC()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,10 +108,10 @@ func TestGeneratedNativeBindings(t *testing.T) {
 		"view":    map[string]any{"raw": raw, "flags": "9999999999999999999999999999999999999999"},
 		"complex": []any{point, msg, nil},
 		"shaped":  []any{point, "999"},
-		"string":  "native snake", "map": []acton.MapEntry{{Key: "4", Value: point}},
+		"string":  "native snake", "map": []tolkabi.MapEntry{{Key: "4", Value: point}},
 		"array": []any{point, point, point, point}, "wide": point, "hook": map[string]any{"value": "1"},
 		"wide_array": []any{[]any{point, "9"}, []any{point, "10"}},
-		"union_null": acton.UnionValue{Type: "Point", Value: point}, "lisp": []any{point, point},
+		"union_null": tolkabi.UnionValue{Type: "Point", Value: point}, "lisp": []any{point, point},
 	}
 	for name, v := range values {
 		t.Run(name, func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestGeneratedNativeBindings(t *testing.T) {
 				t.Fatal(e)
 			}
 			same(t, out, v)
-			if _, e = m.DecodeResult(append(stack, acton.StackValue{Type: "null"})); e == nil {
+			if _, e = m.DecodeResult(append(stack, tolkabi.StackValue{Type: "null"})); e == nil {
 				t.Fatal("trailing stack accepted")
 			}
 		})
@@ -160,7 +160,7 @@ func TestGeneratedNativeBindings(t *testing.T) {
 	if e != nil || out != nil {
 		t.Fatal(out, e)
 	}
-	for i, want := range []any{map[string]any{"item": "42"}, "42", acton.UnionValue{Type: "bool", Value: true}, nil} {
+	for i, want := range []any{map[string]any{"item": "42"}, "42", tolkabi.UnionValue{Type: "bool", Value: true}, nil} {
 		binding := c.Messages["emitted_events"][i]
 		root, e := binding.Encode(want)
 		if e != nil {

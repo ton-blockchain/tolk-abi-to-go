@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	acton "github.com/ton-blockchain/acton/packages/abi-go"
+	tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 )
 
 func (a *ABI) defaultExpr(raw json.RawMessage, target, depth int) (string, error) {
@@ -82,7 +82,7 @@ func (a *ABI) defaultExpr(raw json.RawMessage, target, depth int) (string, error
 		if err := json.Unmarshal(v.V, &s); err != nil {
 			return "", err
 		}
-		n, err := acton.Integer(s)
+		n, err := tolkabi.Integer(s)
 		if err != nil {
 			return "", err
 		}
@@ -161,7 +161,7 @@ func (a *ABI) defaultExpr(raw json.RawMessage, target, depth int) (string, error
 			return "", errors.New("slice default width mismatch")
 		}
 		h = h[:(n+7)/8*2]
-		return fmt.Sprintf("acton.Bits{Bits:%d,Hex:%q}", n, strings.ToLower(h)), nil
+		return fmt.Sprintf("tolkabi.Bits{Bits:%d,Hex:%q}", n, strings.ToLower(h)), nil
 	case "tensor", "shapedTuple":
 		if err := require(raw, "items"); err != nil {
 			return "", err
@@ -205,7 +205,7 @@ func (a *ABI) defaultFunc(raw json.RawMessage, target int) (string, string) {
 	}
 	expr, err := a.defaultExpr(raw, target, 0)
 	if err != nil {
-		return "acton.RejectedDefault(" + strconv.Quote(err.Error()) + ")", err.Error()
+		return "tolkabi.RejectedDefault(" + strconv.Quote(err.Error()) + ")", err.Error()
 	}
 	return "func()(any,error){return " + expr + ",nil}", ""
 }

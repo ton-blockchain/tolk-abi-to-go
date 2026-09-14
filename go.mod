@@ -1,4 +1,4 @@
-module github.com/ton-blockchain/acton/packages/abi-go
+module github.com/ton-blockchain/tolk-abi-to-go
 
 go 1.26.3
 

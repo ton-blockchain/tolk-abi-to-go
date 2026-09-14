@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	acton "github.com/ton-blockchain/acton/packages/abi-go"
+	tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 )
 
 func boolEnumFixture(t *testing.T) []byte {
@@ -23,8 +23,8 @@ func boolEnumFixture(t *testing.T) []byte {
 func TestBooleanEnumCatalog(t *testing.T) {
 	other := json.RawMessage(`{"abi_schema_version":"1.3","contract_name":"Other","unique_types":[{"kind":"uintN","n":8}],"declarations":[],"struct_instantiations":[],"alias_instantiations":[],"get_methods":[{"name":"identity","tvm_method_id":100001,"parameters":[{"name":"v","ty_idx":0,"default_value":{"kind":"int","v":"7"}}],"return_ty_idx":0}],"storage":{"storage_ty_idx":0},"incoming_messages":[],"incoming_external":[],"outgoing_messages":[],"emitted_events":[]}`)
 	data, err := json.Marshal(CatalogInput{SchemaVersion: 1, Contracts: []ContractInput{
-		{ID: "bool-enum", DisplayName: "Boolean enum", Hashes: []string{}, KnownAddresses: []string{}, Links: []acton.Link{}, CompilerABI: boolEnumFixture(t)},
-		{ID: "unrelated", DisplayName: "Other", Hashes: []string{}, KnownAddresses: []string{}, Links: []acton.Link{}, CompilerABI: other},
+		{ID: "bool-enum", DisplayName: "Boolean enum", Hashes: []string{}, KnownAddresses: []string{}, Links: []tolkabi.Link{}, CompilerABI: boolEnumFixture(t)},
+		{ID: "unrelated", DisplayName: "Other", Hashes: []string{}, KnownAddresses: []string{}, Links: []tolkabi.Link{}, CompilerABI: other},
 	}})
 	if err != nil {
 		t.Fatal(err)

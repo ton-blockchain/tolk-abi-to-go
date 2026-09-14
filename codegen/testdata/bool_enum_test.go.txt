@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	acton "github.com/ton-blockchain/acton/packages/abi-go"
+	tolkabi "github.com/ton-blockchain/tolk-abi-to-go"
 )
 
 type toggle = CBoolEnum_e9337cdcd0974cbcToggleT1
@@ -20,7 +20,7 @@ var _ CBoolEnum_e9337cdcd0974cbcTypedCellG5Result = on
 var _ = CBoolEnum_e9337cdcd0974cbcTypedCellG5Args{VF0: on}
 var _ = state{OffF0: off, OnF1: on}
 
-func method(t *testing.T, c *acton.Contract, name string) *acton.GetMethod {
+func method(t *testing.T, c *tolkabi.Contract, name string) *tolkabi.GetMethod {
 	t.Helper()
 	for i := range c.GetMethods {
 		if c.GetMethods[i].Name == name {
@@ -43,7 +43,7 @@ func TestBooleanEnumGeneratedBindings(t *testing.T) {
 		{off, "te6cckEBAQEAAwAAAUD20kA0"},
 		{on, "te6cckEBAQEAAwAAAcCO6ba2"},
 	} {
-		golden, err := acton.DecodeBOC(tc.boc)
+		golden, err := tolkabi.DecodeBOC(tc.boc)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -69,11 +69,11 @@ func TestBooleanEnumGeneratedBindings(t *testing.T) {
 		if err != nil || len(stack) != 1 || stack[0].Type != "cell" {
 			t.Fatalf("typed-cell getter encode: %+v %v", stack, err)
 		}
-		got, err := acton.DecodeBOC(stack[0].Value.(string))
+		got, err := tolkabi.DecodeBOC(stack[0].Value.(string))
 		if err != nil || !bytes.Equal(got.Hash(), golden.Hash()) {
 			t.Fatalf("typed-cell getter golden: %v", err)
 		}
-		decoded, err := m.DecodeResult([]acton.StackValue{{Type: "cell", Value: tc.boc}})
+		decoded, err := m.DecodeResult([]tolkabi.StackValue{{Type: "cell", Value: tc.boc}})
 		if err != nil || decoded != bool(tc.value) {
 			t.Fatalf("typed-cell getter decode: %#v %v", decoded, err)
 		}
@@ -83,7 +83,7 @@ func TestBooleanEnumGeneratedBindings(t *testing.T) {
 			t.Fatalf("accepted nonboolean cell value %#v", bad)
 		}
 	}
-	falseCell, err := acton.DecodeBOC("te6cckEBAQEAAwAAAUD20kA0")
+	falseCell, err := tolkabi.DecodeBOC("te6cckEBAQEAAwAAAUD20kA0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +131,7 @@ func TestBooleanEnumGeneratedBindings(t *testing.T) {
 	}
 	// Ordinary bool getters still use TVM -1; unrelated integer defaults stay numeric.
 	for _, tc := range []struct {
-		contract   *acton.Contract
+		contract   *tolkabi.Contract
 		name, want string
 	}{
 		{c, "ordinary", "-1"}, {other, "identity", "7"},

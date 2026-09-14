@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/ton-blockchain/acton/packages/abi-go/codegen"
+	"github.com/ton-blockchain/tolk-abi-to-go/codegen"
 )
 
 func run(args []string, stderr io.Writer) error {

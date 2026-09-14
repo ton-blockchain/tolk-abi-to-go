@@ -1,6 +1,6 @@
 // Package codegen validates Tolk compiler ABI JSON and emits native Go bindings
-// using github.com/ton-blockchain/acton/packages/abi-go as their shared runtime.
-// Only this build-time package parses ABI JSON; generated packages import acton.
+// using github.com/ton-blockchain/tolk-abi-to-go as their shared runtime.
+// Only this build-time package parses ABI JSON; generated packages import tolkabi.
 package codegen
 
 import (
